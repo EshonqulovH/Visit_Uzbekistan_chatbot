@@ -289,7 +289,7 @@ else:
                                     """
 
                     response = openai.chat.completions.create(
-                        model="gpt-4",
+                        model="gpt-4o-mini",
                         messages=[
                             {"role": "system", "content": system_prompt},
                             *st.session_state["messages_home"]
@@ -358,7 +358,7 @@ else:
                     
                     # ChatGPT API orqali javob olish
                     response = openai.chat.completions.create(
-                        model="gpt-4",
+                        model="gpt-4o-mini",
                         messages=[
                             {"role": "system", "content": system_prompt1},
                             *st.session_state["messages_historical_sites"]
@@ -424,7 +424,7 @@ else:
 
                     # ChatGPT API orqali javob olish
                     response = openai.chat.completions.create(
-                        model="gpt-4",
+                        model="gpt-4o-mini",
                         messages=[
                             {"role": "system", "content": system_prompt2},
                             *st.session_state["messages_historical_figures"]
