@@ -498,7 +498,7 @@ else:
                             location_info = f" User's selected location is Latitude: {st.session_state['selected_location']['lat']}, Longitude: {st.session_state['selected_location']['lng']}."
                             system_content += location_info
 
-                        response = openai.ChatCompletion.create(
+                        response = openai.chat.completions.create(
                             model="gpt-4o-mini",
                             messages=[
                                 {"role": "system", "content": system_content},
