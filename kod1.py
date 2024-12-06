@@ -264,202 +264,165 @@ else:
         st.title(t["home"])
         st.write(t["main_text"])
 
-        # Home sahifasi uchun chatbot
+        # Home sahifasi uchun chatbot sessiyasini boshlash
         if "messages_home" not in st.session_state:
             st.session_state["messages_home"] = []
 
-        if "history" not in st.session_state:
-            st.session_state["history"] = []  # Javoblarni saqlash uchun
-
         st.markdown(f"### {t['chatbot_home']}")
-        user_input = st.text_input("Savol bering (Home):", key="input_home")
-        if st.button("Enter", key="send_home"):
-            if user_input:
-                st.session_state["messages_home"].append({"role": "user", "content": user_input})
 
-                try:
-
-                    system_prompt = """
-                                    You are an expert on Uzbekistan and provide clear and concise answers. 
-                                    If asked about other countries, respond with, "I only have knowledge about Uzbekistan." 
-                                    You can also answer questions on social, economic, and political matters. 
-                                    However, you do not provide information about historical monuments or historical figures. 
-                                    If someone asks about historical figures or monuments, respond with, 
-                                    "You can find information on this through our next page."
-                                    """
-
-                    response = openai.chat.completions.create(
-                        model="gpt-4o-mini",
-                        messages=[
-                            {"role": "system", "content": system_prompt},
-                            *st.session_state["messages_home"]
-                        ]
-                    )
-                    # Botning javobini olish
-                    bot_response = response.choices[0].message.content
-                    st.session_state["messages_home"].append({"role": "bot", "content": bot_response})
-                    
-                    # Javobni tarixga saqlash
-                    st.session_state["history"].append({
-                        "question": user_input,
-                        "answer": bot_response
-                    })
-                except Exception as e:
-                    # Xatolik yuzaga kelsa
-                    bot_response = "Error: Unable to fetch a response. Please try again later."
-                    st.session_state["messages_home"].append({"role": "bot", "content": bot_response})
-
-        # Xabarlarni ko‘rsatish
-        st.subheader("Chat:")
+        # Chat xabarlarini ko'rsatish
         for message in st.session_state["messages_home"]:
-            role = "👤" if message["role"] == "user" else "🤖"
-            st.write(f"{role} {message['content']}")
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
-        # Refresh tugmasi
+        # Foydalanuvchi uchun input
+        if user_input := st.chat_input("Savolingizni kiriting:"):
+            # Foydalanuvchi xabarini qo'shish
+            st.session_state["messages_home"].append({"role": "user", "content": user_input})
+            with st.chat_message("user"):
+                st.markdown(user_input)
+
+            # Bot javobini generatsiya qilish
+            with st.chat_message("assistant"):
+                with st.spinner("Javob olinmoqda..."):
+                    try:
+                        system_prompt = """
+                        You are an expert on Uzbekistan and provide clear and concise answers. 
+                        If asked about other countries, respond with, "I only have knowledge about Uzbekistan." 
+                        You can also answer questions on social, economic, and political matters. 
+                        However, you do not provide information about historical monuments or historical figures. 
+                        If someone asks about historical figures or monuments, respond with, 
+                        "You can find information on this through our next page."
+                        """
+
+                        response = openai.chat.completions.create(
+                            model="gpt-4o-mini",
+                            messages=[
+                                {"role": "system", "content": system_prompt},
+                                *st.session_state["messages_home"]
+                            ]
+                        )
+                        bot_response = response.choices[0].message.content
+                    except Exception:
+                        bot_response = "Error: Unable to fetch a response. Please try again later."
+
+                    # Bot javobini qo'shish
+                    st.markdown(bot_response)
+                    st.session_state["messages_home"].append({"role": "assistant", "content": bot_response})
+
+        # Chatni tozalash tugmasi
         if st.button("Refresh chat"):
-            st.session_state["messages_home"] = []  # Chatni tozalash
-
-        # Tarixni ko‘rsatish
-        st.subheader("(Tarix,История,History):")
-        for record in st.session_state["history"]:
-            st.write(f"**Savol**: {record['question']}")
-            st.write(f"**Javob**: {record['answer']}")
-
+            st.session_state["messages_home"] = []
+    
 
     elif st.session_state["current_page"] == "historical_sites":
         st.title(t["historical_sites"])
         st.write(t["welcome_text_historical_sites"])
 
-        # Historical Sites sahifasi uchun chatbot
+        # Historical Sites sahifasi uchun chatbot sessiyasini boshlash
         if "messages_historical_sites" not in st.session_state:
             st.session_state["messages_historical_sites"] = []
 
         st.markdown(f"### {t['chatbot_historical_sites']}")
-        
-        if "history_city" not in st.session_state:
-            st.session_state["history_city"] = []  # Javoblarni saqlash uchun
 
-        # Foydalanuvchi kiritmasi
-        user_input = st.text_input("Savol bering (Historical Sites):", key="input_historical_sites")
-        if st.button("Enter", key="send_historical_sites"):
-            if user_input:
-                # Foydalanuvchi xabarini qo‘shish
-                st.session_state["messages_historical_sites"].append({"role": "user", "content": user_input})
-                try:
-                    # Sistem prompt
-                    system_prompt1 = """
-                    You are a specialist in historical monuments located exclusively in Uzbekistan. 
-                    You provide concise and precise answers only about historical monuments in Uzbekistan. 
-                    If asked about monuments outside of Uzbekistan, you respond with: 
-                    'I only have expertise in historical monuments located in Uzbekistan.' 
-                    If asked about other topics, you respond with: 
-                    'I am a specialist only in historical monuments.'
-                    """
-                    
-                    # ChatGPT API orqali javob olish
-                    response = openai.chat.completions.create(
-                        model="gpt-4o-mini",
-                        messages=[
-                            {"role": "system", "content": system_prompt1},
-                            *st.session_state["messages_historical_sites"]
-                        ]
-                    )
-                    # Botning javobini olish
-                    bot_response = response.choices[0].message.content
-                    st.session_state["messages_historical_sites"].append({"role": "bot", "content": bot_response})
-                    
-                    # Javobni tarixga saqlash
-                    st.session_state["history_city"].append({
-                        "question": user_input,
-                        "answer": bot_response
-                    })
-                except Exception as e:
-                    # Xatolik yuzaga kelsa
-                    bot_response = "Error: Unable to fetch a response. Please try again later."
-                    st.session_state["messages_historical_sites"].append({"role": "bot", "content": bot_response})
-
-        # Xabarlarni ko‘rsatish
-        st.subheader("Chat:")
+        # Chat xabarlarini ko'rsatish
         for message in st.session_state["messages_historical_sites"]:
-            role = "👤" if message["role"] == "user" else "🤖"
-            st.write(f"{role} {message['content']}")
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
-        # Refresh tugmasi
+        # Foydalanuvchi uchun input
+        if user_input := st.chat_input("Savolingizni kiriting:"):
+            # Foydalanuvchi xabarini qo'shish
+            st.session_state["messages_historical_sites"].append({"role": "user", "content": user_input})
+            with st.chat_message("user"):
+                st.markdown(user_input)
+
+            # Bot javobini generatsiya qilish
+            with st.chat_message("assistant"):
+                with st.spinner("Javob olinmoqda..."):
+                    try:
+                        system_prompt1 = """
+                        You are a specialist in historical monuments located exclusively in Uzbekistan. 
+                        You provide concise and precise answers only about historical monuments in Uzbekistan. 
+                        If asked about monuments outside of Uzbekistan, you respond with: 
+                        'I only have expertise in historical monuments located in Uzbekistan.' 
+                        If asked about other topics, you respond with: 
+                        'I am a specialist only in historical monuments.'
+                        """
+
+                        response = openai.chat.completions.create(
+                            model="gpt-4o-mini",
+                            messages=[
+                                {"role": "system", "content": system_prompt1},
+                                *st.session_state["messages_historical_sites"]
+                            ]
+                        )
+                        bot_response = response.choices[0].message.content
+                    except Exception:
+                        bot_response = "Error: Unable to fetch a response. Please try again later."
+
+                    # Bot javobini qo'shish
+                    st.markdown(bot_response)
+                    st.session_state["messages_historical_sites"].append({"role": "assistant", "content": bot_response})
+
+        # Chatni tozalash tugmasi
         if st.button("Refresh chat"):
-            st.session_state["messages_historical_sites"] = []  # Chatni tozalash
+            st.session_state["messages_historical_sites"] = []
 
-        # Tarixni ko‘rsatish
-        st.subheader("(Tarix,История,History):")
-        for record in st.session_state["history_city"]:
-            st.write(f"**Savol**: {record['question']}")
-            st.write(f"**Javob**: {record['answer']}")
 
 
     elif st.session_state["current_page"] == "historical_figures":
         st.title(t["historical_figures"])
         st.write(t["welcome_text_historical_figures"])
 
-        # Historical Figures sahifasi uchun chatbot
+        # Historical Figures sahifasi uchun chatbot sessiyasini boshlash
         if "messages_historical_figures" not in st.session_state:
             st.session_state["messages_historical_figures"] = []
 
-        if "history_figure" not in st.session_state:
-            st.session_state["history_figure"] = []  # Javoblarni saqlash uchun
-
+        # Chat xabarlarini ko'rsatish
         st.markdown(f"### {t['chatbot_historical_figures']}")
-
-        user_input = st.text_input("Savol bering (Historical Figures):", key="input_historical_figures")
-        if st.button("Enter", key="send_historical_figures"):
-            if user_input:
-                st.session_state["messages_historical_figures"].append({"role": "user", "content": user_input})
-                try:
-                    system_prompt2 = """
-                                    You are a specialist in historical figures and great scholars exclusively from Uzbekistan. 
-                                    You provide concise and precise answers only about historical figures from Uzbekistan. 
-                                    If asked about individuals outside of Uzbekistan, you respond with: 
-                                    'I only have information about historical figures from Uzbekistan.' 
-                                    If asked about other topics, you respond with: 
-                                    'I can only provide information about historical figures.'
-                                    """
-
-                    # ChatGPT API orqali javob olish
-                    response = openai.chat.completions.create(
-                        model="gpt-4o-mini",
-                        messages=[
-                            {"role": "system", "content": system_prompt2},
-                            *st.session_state["messages_historical_figures"]
-                        ]
-                    )
-                    # Botning javobini olish
-                    bot_response = response.choices[0].message.content
-                    st.session_state["messages_historical_figures"].append({"role": "bot", "content": bot_response})
-                    
-                    # Javobni tarixga saqlash
-                    st.session_state["history_figure"].append({
-                        "question": user_input,
-                        "answer": bot_response
-                    })
-                except Exception as e:
-                    # Xatolik yuzaga kelsa
-                    bot_response = "Error: Unable to fetch a response. Please try again later."
-                    st.session_state["messages_historical_figures"].append({"role": "bot", "content": bot_response})
-
-        # Xabarlarni ko‘rsatish
-        st.subheader("Chat:")
         for message in st.session_state["messages_historical_figures"]:
-            role = "👤" if message["role"] == "user" else "🤖"
-            st.write(f"{role} {message['content']}")
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
-        # Refresh tugmasi
+        # Foydalanuvchi uchun input
+        if user_input := st.chat_input("Savolingizni kiriting:"):
+            # Foydalanuvchi xabarini qo'shish
+            st.session_state["messages_historical_figures"].append({"role": "user", "content": user_input})
+            with st.chat_message("user"):
+                st.markdown(user_input)
+
+            # Bot javobini generatsiya qilish
+            with st.chat_message("assistant"):
+                with st.spinner("Javob olinmoqda..."):
+                    try:
+                        system_prompt2 = """
+                        You are a specialist in historical figures and great scholars exclusively from Uzbekistan. 
+                        You provide concise and precise answers only about historical figures from Uzbekistan. 
+                        If asked about individuals outside of Uzbekistan, you respond with: 
+                        'I only have information about historical figures from Uzbekistan.' 
+                        If asked about other topics, you respond with: 
+                        'I can only provide information about historical figures.'
+                        """
+
+                        response = openai.chat.completions.create(
+                            model="gpt-4o-mini",
+                            messages=[
+                                {"role": "system", "content": system_prompt2},
+                                *st.session_state["messages_historical_figures"]
+                            ]
+                        )
+                        bot_response = response.choices[0].message.content
+                    except Exception:
+                        bot_response = "Error: Unable to fetch a response. Please try again later."
+
+                    # Bot javobini qo'shish
+                    st.markdown(bot_response)
+                    st.session_state["messages_historical_figures"].append({"role": "assistant", "content": bot_response})
+
+        # Chatni tozalash tugmasi
         if st.button("Refresh chat"):
-            st.session_state["messages_historical_figures"] = []  # Chatni tozalash
-
-        # Tarixni ko‘rsatish
-        st.subheader("(Tarix,История,History):")
-        for record in st.session_state["history_figure"]:
-            st.write(f"**Savol**: {record['question']}")
-            st.write(f"**Javob**: {record['answer']}")
-
+            st.session_state["messages_historical_figures"] = []
 
     elif st.session_state["current_page"] == "travel_start":
         st.title(t["travel_start"])
@@ -498,45 +461,58 @@ else:
             st.session_state["selected_location"] = location
             st.success(f"Tanlangan joy: Kenglik: {location['lat']}, Uzunlik: {location['lng']}")
 
-        # Chatbot funksiyasi
+        # Travel Start sahifasi uchun chatbot sessiyasini boshlash
         if "messages_travel_start" not in st.session_state:
             st.session_state["messages_travel_start"] = []
 
         st.markdown(f"### {t['chatbot_travel_start']}")
-        user_input = st.text_input("Savol bering (Travel Start):", key="input_travel_start")
-        if st.button("Enter", key="send_travel_start"):
-            if user_input:
-                st.session_state["messages_travel_start"].append({"role": "user", "content": user_input})
-                try:
-                    # Xizmatga mos javoblar uchun maxsus model yaratish
-                    service = st.session_state.get("selected_service", "general")
-                    system_content = "You are an assistant providing travel guidance in Uzbekistan."
-                    if service == "taxi":
-                        system_content += " Focus on taxi-related queries and services."
-                    elif service == "train":
-                        system_content += " Focus on train-related queries and schedules."
-                    elif service == "airplane":
-                        system_content += " Focus on flight-related queries and tickets."
 
-                    # Tanlangan joyni javobga qo'shish
-                    if "selected_location" in st.session_state:
-                        location_info = f" User's selected location is Latitude: {st.session_state['selected_location']['lat']}, Longitude: {st.session_state['selected_location']['lng']}."
-                        system_content += location_info
-
-                    response = openai.ChatCompletion.create(
-                        model="gpt-4o-mini",
-                        messages=[
-                            {"role": "system", "content": system_content},
-                            *st.session_state["messages_travel_start"]
-                        ]
-                    )
-                    bot_response = response.choices[0].message.content
-                    st.session_state["messages_travel_start"].append({"role": "bot", "content": bot_response})
-                except Exception as e:
-                    bot_response = "Error: Unable to fetch a response. Please try again later."
-                    st.session_state["messages_travel_start"].append({"role": "bot", "content": bot_response})
-
-        # Xabarlarni ko'rsatish
+        # Chat xabarlarini ko'rsatish
         for message in st.session_state["messages_travel_start"]:
-            role = "👤" if message["role"] == "user" else "🤖"
-            st.write(f"{role} {message['content']}")
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+
+        # Foydalanuvchi uchun input
+        if user_input := st.chat_input("Savolingizni kiriting:"):
+            # Foydalanuvchi xabarini qo'shish
+            st.session_state["messages_travel_start"].append({"role": "user", "content": user_input})
+            with st.chat_message("user"):
+                st.markdown(user_input)
+
+            # Bot javobini generatsiya qilish
+            with st.chat_message("assistant"):
+                with st.spinner("Javob olinmoqda..."):
+                    try:
+                        # Xizmatga mos javoblar uchun maxsus model yaratish
+                        service = st.session_state.get("selected_service", "general")
+                        system_content = "You are an assistant providing travel guidance in Uzbekistan."
+                        if service == "taxi":
+                            system_content += " Focus on taxi-related queries and services."
+                        elif service == "train":
+                            system_content += " Focus on train-related queries and schedules."
+                        elif service == "airplane":
+                            system_content += " Focus on flight-related queries and tickets."
+
+                        # Tanlangan joyni javobga qo'shish
+                        if "selected_location" in st.session_state:
+                            location_info = f" User's selected location is Latitude: {st.session_state['selected_location']['lat']}, Longitude: {st.session_state['selected_location']['lng']}."
+                            system_content += location_info
+
+                        response = openai.ChatCompletion.create(
+                            model="gpt-4o-mini",
+                            messages=[
+                                {"role": "system", "content": system_content},
+                                *st.session_state["messages_travel_start"]
+                            ]
+                        )
+                        bot_response = response.choices[0].message.content
+                    except Exception:
+                        bot_response = "Error: Unable to fetch a response. Please try again later."
+
+                    # Bot javobini qo'shish
+                    st.markdown(bot_response)
+                    st.session_state["messages_travel_start"].append({"role": "assistant", "content": bot_response})
+
+        # Chatni tozalash tugmasi
+        if st.button("Refresh chat"):
+            st.session_state["messages_travel_start"] = []
