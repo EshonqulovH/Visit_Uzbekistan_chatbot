@@ -4,6 +4,10 @@
 
 This project is a **Streamlit-based interactive web application** designed to guide users through Uzbekistan’s rich historical, cultural, and travel-related services. The app provides personalized responses for different areas of interest, such as historical monuments, historical figures, and travel services like taxis, trains, and flights.  
 
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+![alt text](image-3.png)
 ---
 
 ## Key Features  
