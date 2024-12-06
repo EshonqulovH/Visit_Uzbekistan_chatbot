@@ -6,10 +6,6 @@ This project is a **Streamlit-based interactive web application** designed to gu
 
 ![alt text](image.png)
 ![alt text](image-1.png)
-![alt text](image-2.png)
-![alt text](image-5.png)
-![alt text](image-4.png)
-![alt text](image-3.png)
 ---
 
 ## Key Features  
@@ -24,9 +20,13 @@ The app is structured into four main sections:
 ### 2. **Dynamic Chatbot Functionality**  
 Each section has its own chatbot with tailored knowledge and a specific scope. For example:  
 - **Home Chatbot**: Focuses on Uzbekistan’s general topics, excluding historical figures or sites.  
-- **Historical Sites Chatbot**: Specializes in Uzbekistan’s monuments, excluding other topics.  
-- **Historical Figures Chatbot**: Provides information about Uzbekistan's notable historical figures.  
-- **Travel Start Chatbot**: Offers travel guidance based on user-selected services and locations.  
+![alt text](image-2.png)
+- **Historical Sites Chatbot**: Specializes in Uzbekistan’s monuments, excluding other topics.
+![alt text](image-5.png)  
+- **Historical Figures Chatbot**: Provides information about Uzbekistan's notable historical figures.
+![alt text](image-4.png)  
+- **Travel Start Chatbot**: Offers travel guidance based on user-selected services and locations. 
+![alt text](image-3.png) 
 
 ### 3. **Interactive Map**  
 The **Travel Start** page integrates a Folium-based map where users can select a location. The chatbot then tailors travel guidance based on the chosen coordinates.  
